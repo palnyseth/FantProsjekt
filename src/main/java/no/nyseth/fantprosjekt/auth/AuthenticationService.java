@@ -62,7 +62,9 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 @Stateless
 @Log
 public class AuthenticationService {
-    
+    private static final String INSERT_USERGROUP = "INSERT INTO AUSERGROUP(NAME,USERID) VALUES (?,?)";
+    private static final String DELETE_USERGROUP = "DELETE FROM AUSERGROUP WHERE NAME = ? AND USERID = ?";
+
     
     @Inject 
     KeyService keyService;
@@ -111,15 +113,17 @@ public class AuthenticationService {
             @Context HttpServletRequest request) {
         CredentialValidationResult result = identityStoreHandler.validate(
                 new UsernamePasswordCredential(uid, pwd));
-
+        log.log(Level.INFO, "checking credentials", uid);
         if (result.getStatus() == CredentialValidationResult.Status.VALID) {
             String token = issueToken(result.getCallerPrincipal().getName(),
                     result.getCallerGroups(), request);
+            log.log(Level.INFO, "user logged in {0}", uid);
             return Response
                     .ok(token)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                     .build();
         } else {
+            log.log(Level.INFO, "user not logged in {0}", uid);
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }
@@ -155,6 +159,89 @@ public class AuthenticationService {
     @Produces(MediaType.APPLICATION_JSON)
     public User getCurrentUser() {
         return em.find(User.class, principal.getName());
+    }
+    
+    private boolean roleExists(String role) {
+        boolean result = false;
+
+        if (role != null) {
+            switch (role) {
+                case Group.ADMIN:
+                case Group.USER:
+                    result = true;
+                    break;
+            }
+        }
+
+        return result;
+    }
+        
+    @PUT
+    @Path("addrole")
+    @RolesAllowed(value = {Group.ADMIN})
+    public Response addRole(@QueryParam("uid") String uid, @QueryParam("role") String role) {
+        if (!roleExists(role)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        try (Connection c = ds.getConnection();
+             PreparedStatement psg = c.prepareStatement(INSERT_USERGROUP)) {
+            psg.setString(1, role);
+            psg.setString(2, uid);
+            psg.executeUpdate();
+        } catch (SQLException ex) {
+            log.log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        return Response.ok().build();
+    }
+    
+    @PUT
+    @Path("removerole")
+    @RolesAllowed(value = {Group.ADMIN})
+    public Response removeRole(@QueryParam("uid") String uid, @QueryParam("role") String role) {
+        if (!roleExists(role)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        try (Connection c = ds.getConnection();
+                PreparedStatement psg = c.prepareStatement(DELETE_USERGROUP)) {
+            psg.setString(1, role);
+            psg.setString(2, uid);
+            psg.executeUpdate();
+        } catch (SQLException ex) {
+            log.log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        return Response.ok().build();
+    }
+    
+    @PUT
+    @Path("changepassword")
+    @RolesAllowed(value = {Group.USER})
+    public Response changePassword(@QueryParam("uid") String uid,
+            @QueryParam("pwd") String password,
+            @Context SecurityContext sc) {
+        String authuser = sc.getUserPrincipal() != null ? sc.getUserPrincipal().getName() : null;
+        log.log(Level.SEVERE, "attempting change {0}", uid);
+        if (authuser == null || uid == null || (password == null || password.length() < 3)) {
+            log.log(Level.SEVERE, "Failed to change password on user {0}", uid);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        if (authuser.compareToIgnoreCase(uid) != 0 && !sc.isUserInRole(Group.ADMIN)) {
+            log.log(Level.SEVERE,
+                    "No admin access for {0}. Failed to change password on user {1}",
+                    new Object[]{authuser, uid});
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } else {
+            User user = em.find(User.class, uid);
+            user.setPassword(hasher.generate(password.toCharArray()));
+            em.merge(user);
+            return Response.ok().build();
+        }
     }
     
     /*
