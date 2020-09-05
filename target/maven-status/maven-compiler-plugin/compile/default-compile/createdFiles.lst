@@ -1,4 +1,9 @@
-no/nyseth/fantprosjekt/resources/JavaEE8Resource.class
+no/nyseth/fantprosjekt/auth/Group.class
+no/nyseth/fantprosjekt/resources/dbCheck.class
+no/nyseth/fantprosjekt/auth/AuthenticationService.class
+no/nyseth/fantprosjekt/auth/KeyService.class
+no/nyseth/fantprosjekt/auth/User.class
 no/nyseth/fantprosjekt/resources/SecurityConfiguration.class
+no/nyseth/fantprosjekt/resources/JavaEE8Resource.class
 no/nyseth/fantprosjekt/JAXRSConfiguration.class
 no/nyseth/fantprosjekt/resources/DatasourceProducer.class

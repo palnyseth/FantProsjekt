@@ -1,0 +1,158 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package no.nyseth.fantprosjekt.auth;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Set;
+import java.util.logging.Level;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.security.enterprise.credential.UsernamePasswordCredential;
+import javax.security.enterprise.identitystore.CredentialValidationResult;
+import javax.security.enterprise.identitystore.IdentityStoreHandler;
+import javax.security.enterprise.identitystore.PasswordHash;
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
+import lombok.extern.java.Log;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.InvalidKeyException;
+import javax.annotation.Resource;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PathParam;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import no.nyseth.fantprosjekt.resources.DatasourceProducer;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+
+/**
+ *
+ * @author nyseth
+ */
+@Path("auth")
+@Stateless
+@Log
+public class AuthenticationService {
+    
+    @Inject 
+    KeyService keyService;
+    
+    @Inject
+    IdentityStoreHandler identityStoreHandler;
+    
+    @Resource(lookup = DatasourceProducer.JNDI_NAME)
+    DataSource ds;
+    
+    @PersistenceContext
+    EntityManager em;
+    
+    @Inject
+    PasswordHash hasher;
+    
+    @Inject
+    @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "issuer")
+    String issuer;
+
+    @Inject
+    JsonWebToken principal;
+    
+    @POST
+    @Path("create")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createUser(@FormParam("uid") String uid, @FormParam("pwd") String pwd) {
+        User user = em.find(User.class, uid);
+        if (user != null) {
+            log.log(Level.INFO, "user already exists {0}", uid);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } else {
+            user = new User();
+            user.setUserid(uid);
+            user.setPassword(hasher.generate(pwd.toCharArray()));
+            Group usergroup = em.find(Group.class, Group.USER);
+            user.getGroups().add(usergroup);
+            return Response.ok(em.merge(user)).build();
+        }
+    }
+    
+    private String issueToken(String name, Set<String> groups, HttpServletRequest request) {
+        try {
+            Date now = new Date();
+            Date expiration = Date.from(LocalDateTime.now().plusDays(1L).atZone(ZoneId.systemDefault()).toInstant());
+            JwtBuilder jb = Jwts.builder()
+                    .setHeaderParam("typ", "JWT")
+                    .setHeaderParam("kid", "abc-1234567890")
+                    .setSubject(name)
+                    .setId("a-123")
+                    //.setIssuer(issuer)
+                    .claim("iss", issuer)
+                    .setIssuedAt(now)
+                    .setExpiration(expiration)
+                    .claim("upn", name)
+                    .claim("groups", groups)
+                    .claim("aud", "aud")
+                    .claim("auth_time", now)
+                    .signWith(keyService.getPrivate());
+            return jb.compact();
+        } catch (InvalidKeyException t) {
+            log.log(Level.SEVERE, "Failed to create token", t);
+            throw new RuntimeException("Failed to create token", t);
+        }
+    }
+    
+    @GET
+    @Path("queryParam")
+    public Response getParams(
+            @QueryParam("s") @DefaultValue("") String myStr,
+            @QueryParam("i") @DefaultValue("-1") int myInt) {
+        String s = "s=" + myStr + ", i=" + myInt;
+        return Response.ok(s).build();
+    }
+    
+    @GET
+    @Path("pathParam/{p}")
+    public Response getParams(@PathParam("p") String v) {
+      return Response.ok(v).build();
+    }
+    
+    @GET
+    @Path("headerParam")
+    public Response getHeaderParam(@HeaderParam("p") String v) {
+        return Response.ok(v).build();
+    }
+    
+    @POST
+    @Path("formParam")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response postFormParam(@FormParam("p") String v) {
+        return Response.ok(v).build();
+    }
+}

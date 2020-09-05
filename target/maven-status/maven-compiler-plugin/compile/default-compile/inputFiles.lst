@@ -1,4 +1,9 @@
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/JAXRSConfiguration.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/JavaEE8Resource.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/SecurityConfiguration.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/KeyService.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/DatasourceProducer.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/AuthenticationService.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/dbCheck.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/User.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/Group.java

@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
  *
  * @author 
  */
-@Path("api")
+@Path("testgreier")
 public class JavaEE8Resource {
     
     @GET
