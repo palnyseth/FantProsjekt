@@ -15,12 +15,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQuery;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import static no.nyseth.fantprosjekt.auth.User.FIND_ALL_USERS;
+import static no.nyseth.fantprosjekt.auth.User.FIND_USER_BY_IDS;
 
 /**
  *
@@ -31,7 +35,10 @@ import lombok.NoArgsConstructor;
 @Data 
 @AllArgsConstructor 
 @NoArgsConstructor
+@NamedQuery(name = FIND_ALL_USERS, query = "select u from User u order by u.firstName")
 public class User implements Serializable {
+    public static final String FIND_USER_BY_IDS = "User.findUserByIds";
+    public static final String FIND_ALL_USERS = "User.findAllUsers";
     
     @Id
     String userid;
@@ -52,6 +59,11 @@ public class User implements Serializable {
             joinColumns = @JoinColumn(name="userid", referencedColumnName = "userid"),
             inverseJoinColumns = @JoinColumn(name="name",referencedColumnName = "name"))
     List<Group> groups;
+    
+    @PrePersist
+    protected void onCreate() {
+        created = new Date();
+    }
     
     public List<Group> getGroups() {
         if(groups == null) {

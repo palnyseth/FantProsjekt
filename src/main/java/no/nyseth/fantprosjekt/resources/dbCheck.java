@@ -5,7 +5,9 @@
  */
 package no.nyseth.fantprosjekt.resources;
 
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
@@ -24,6 +26,9 @@ public class dbCheck {
     @Resource(lookup = DatasourceProducer.JNDI_NAME)
     DataSource ds;
     
+    @Resource
+    DataSource pgDs;
+    
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) throws SQLException {
         DatabaseMetaData md = ds.getConnection().getMetaData();
         System.out.println("---------------------------------------------------");
@@ -33,6 +38,7 @@ public class dbCheck {
         System.out.println("Table info: " + md.getTables(null, null, "AUSER", null));
         System.out.println("---------------------------------------------------");
         System.out.println("---------------------------------------------------");
+        
     }
     
 }

@@ -63,6 +63,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 @Log
 public class AuthenticationService {
     
+    
     @Inject 
     KeyService keyService;
     
@@ -102,6 +103,26 @@ public class AuthenticationService {
             return Response.ok(em.merge(user)).build();
         }
     }
+    @GET
+    @Path("login")
+    public Response login(
+            @QueryParam("uid") @NotBlank String uid,
+            @QueryParam("pwd") @NotBlank String pwd,
+            @Context HttpServletRequest request) {
+        CredentialValidationResult result = identityStoreHandler.validate(
+                new UsernamePasswordCredential(uid, pwd));
+
+        if (result.getStatus() == CredentialValidationResult.Status.VALID) {
+            String token = issueToken(result.getCallerPrincipal().getName(),
+                    result.getCallerGroups(), request);
+            return Response
+                    .ok(token)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .build();
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+    }
     
     private String issueToken(String name, Set<String> groups, HttpServletRequest request) {
         try {
@@ -127,6 +148,18 @@ public class AuthenticationService {
             throw new RuntimeException("Failed to create token", t);
         }
     }
+    
+    @GET
+    @Path("currentuser")
+    @RolesAllowed(value = {Group.USER})
+    @Produces(MediaType.APPLICATION_JSON)
+    public User getCurrentUser() {
+        return em.find(User.class, principal.getName());
+    }
+    
+    /*
+    Various testmethods
+    */
     
     @GET
     @Path("queryParam")

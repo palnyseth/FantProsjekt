@@ -8,7 +8,7 @@ package no.nyseth.fantprosjekt.resources;
 import javax.annotation.security.DeclareRoles;
 import javax.security.enterprise.identitystore.DatabaseIdentityStoreDefinition;
 import javax.security.enterprise.identitystore.PasswordHash;
-/*import no.ntnu.tollefsen.auth.Group;*/
+import no.nyseth.fantprosjekt.auth.Group;
 import org.eclipse.microprofile.auth.LoginConfig;
 
 /**
@@ -21,7 +21,7 @@ import org.eclipse.microprofile.auth.LoginConfig;
     groupsQuery="select name from ausergroup where userid  = ?",
     hashAlgorithm = PasswordHash.class,
     priority = 80)
-/*@DeclareRoles({Group.ADMIN,Group.USER})*/
+@DeclareRoles({Group.ADMIN,Group.USER})
 @LoginConfig(authMethod = "MP-JWT",realmName = "template")
 public class SecurityConfiguration {    
 }
