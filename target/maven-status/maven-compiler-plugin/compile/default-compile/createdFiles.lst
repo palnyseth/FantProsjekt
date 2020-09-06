@@ -8,5 +8,7 @@ no/nyseth/fantprosjekt/resources/DatasourceProducer.class
 no/nyseth/fantprosjekt/auth/AuthenticationService.class
 no/nyseth/fantprosjekt/auth/KeyService.class
 no/nyseth/fantprosjekt/auth/User.class
+no/nyseth/fantprosjekt/domain/Item_.class
+no/nyseth/fantprosjekt/domain/Item.class
 no/nyseth/fantprosjekt/auth/Group_.class
 no/nyseth/fantprosjekt/resources/JavaEE8Resource.class
