@@ -64,9 +64,8 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 public class AuthenticationService {
     private static final String INSERT_USERGROUP = "INSERT INTO AUSERGROUP(NAME,USERID) VALUES (?,?)";
     private static final String DELETE_USERGROUP = "DELETE FROM AUSERGROUP WHERE NAME = ? AND USERID = ?";
-
     
-    @Inject 
+    @Inject
     KeyService keyService;
     
     @Inject
@@ -84,7 +83,7 @@ public class AuthenticationService {
     @Inject
     @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "issuer")
     String issuer;
-
+    
     @Inject
     JsonWebToken principal;
     
@@ -92,65 +91,65 @@ public class AuthenticationService {
     @Path("create")
     @Produces(MediaType.APPLICATION_JSON)
     public Response createUser(@FormParam("uid") String uid, @FormParam("pwd") String pwd) {
-        User user = em.find(User.class, uid);
-        if (user != null) {
-            log.log(Level.INFO, "user already exists {0}", uid);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } else {
-            user = new User();
-            user.setUserid(uid);
-            user.setPassword(hasher.generate(pwd.toCharArray()));
-            Group usergroup = em.find(Group.class, Group.USER);
-            user.getGroups().add(usergroup);
-            return Response.ok(em.merge(user)).build();
-        }
+    User user = em.find(User.class, uid);
+    if (user != null) {
+    log.log(Level.INFO, "user already exists {0}", uid);
+    return Response.status(Response.Status.BAD_REQUEST).build();
+    } else {
+    user = new User();
+    user.setUserid(uid);
+    user.setPassword(hasher.generate(pwd.toCharArray()));
+    Group usergroup = em.find(Group.class, Group.USER);
+    user.getGroups().add(usergroup);
+    return Response.ok(em.merge(user)).build();
+    }
     }
     @GET
     @Path("login")
     public Response login(
-            @QueryParam("uid") @NotBlank String uid,
-            @QueryParam("pwd") @NotBlank String pwd,
-            @Context HttpServletRequest request) {
-        CredentialValidationResult result = identityStoreHandler.validate(
-                new UsernamePasswordCredential(uid, pwd));
-        log.log(Level.INFO, "checking credentials", uid);
-        if (result.getStatus() == CredentialValidationResult.Status.VALID) {
-            String token = issueToken(result.getCallerPrincipal().getName(),
-                    result.getCallerGroups(), request);
-            log.log(Level.INFO, "user logged in {0}", uid);
-            return Response
-                    .ok(token)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .build();
-        } else {
-            log.log(Level.INFO, "user not logged in {0}", uid);
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
+    @QueryParam("uid") @NotBlank String uid,
+    @QueryParam("pwd") @NotBlank String pwd,
+    @Context HttpServletRequest request) {
+    CredentialValidationResult result = identityStoreHandler.validate(
+    new UsernamePasswordCredential(uid, pwd));
+    log.log(Level.INFO, "checking credentials", uid);
+    if (result.getStatus() == CredentialValidationResult.Status.VALID) {
+    String token = issueToken(result.getCallerPrincipal().getName(),
+    result.getCallerGroups(), request);
+    log.log(Level.INFO, "user logged in {0}", uid);
+    return Response
+    .ok(token)
+    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+    .build();
+    } else {
+    log.log(Level.INFO, "user not logged in {0}", uid);
+    return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
     }
     
     private String issueToken(String name, Set<String> groups, HttpServletRequest request) {
-        try {
-            Date now = new Date();
-            Date expiration = Date.from(LocalDateTime.now().plusDays(1L).atZone(ZoneId.systemDefault()).toInstant());
-            JwtBuilder jb = Jwts.builder()
-                    .setHeaderParam("typ", "JWT")
-                    .setHeaderParam("kid", "abc-1234567890")
-                    .setSubject(name)
-                    .setId("a-123")
-                    //.setIssuer(issuer)
-                    .claim("iss", issuer)
-                    .setIssuedAt(now)
-                    .setExpiration(expiration)
-                    .claim("upn", name)
-                    .claim("groups", groups)
-                    .claim("aud", "aud")
-                    .claim("auth_time", now)
-                    .signWith(keyService.getPrivate());
-            return jb.compact();
-        } catch (InvalidKeyException t) {
-            log.log(Level.SEVERE, "Failed to create token", t);
-            throw new RuntimeException("Failed to create token", t);
-        }
+    try {
+    Date now = new Date();
+    Date expiration = Date.from(LocalDateTime.now().plusDays(1L).atZone(ZoneId.systemDefault()).toInstant());
+    JwtBuilder jb = Jwts.builder()
+    .setHeaderParam("typ", "JWT")
+    .setHeaderParam("kid", "abc-1234567890")
+    .setSubject(name)
+    .setId("a-123")
+    //.setIssuer(issuer)
+    .claim("iss", issuer)
+    .setIssuedAt(now)
+    .setExpiration(expiration)
+    .claim("upn", name)
+    .claim("groups", groups)
+    .claim("aud", "aud")
+    .claim("auth_time", now)
+    .signWith(keyService.getPrivate());
+    return jb.compact();
+    } catch (InvalidKeyException t) {
+    log.log(Level.SEVERE, "Failed to create token", t);
+    throw new RuntimeException("Failed to create token", t);
+    }
     }
     
     @GET
@@ -163,7 +162,7 @@ public class AuthenticationService {
     
     private boolean roleExists(String role) {
         boolean result = false;
-
+        
         if (role != null) {
             switch (role) {
                 case Group.ADMIN:
@@ -172,10 +171,10 @@ public class AuthenticationService {
                     break;
             }
         }
-
+        
         return result;
     }
-        
+    
     @PUT
     @Path("addrole")
     @RolesAllowed(value = {Group.ADMIN})
@@ -183,9 +182,9 @@ public class AuthenticationService {
         if (!roleExists(role)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
-
+        
         try (Connection c = ds.getConnection();
-             PreparedStatement psg = c.prepareStatement(INSERT_USERGROUP)) {
+                PreparedStatement psg = c.prepareStatement(INSERT_USERGROUP)) {
             psg.setString(1, role);
             psg.setString(2, uid);
             psg.executeUpdate();
@@ -193,7 +192,7 @@ public class AuthenticationService {
             log.log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-
+        
         return Response.ok().build();
     }
     
@@ -204,7 +203,7 @@ public class AuthenticationService {
         if (!roleExists(role)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
-
+        
         try (Connection c = ds.getConnection();
                 PreparedStatement psg = c.prepareStatement(DELETE_USERGROUP)) {
             psg.setString(1, role);
@@ -214,23 +213,22 @@ public class AuthenticationService {
             log.log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-
+        
         return Response.ok().build();
     }
     
     @PUT
     @Path("changepassword")
     @RolesAllowed(value = {Group.USER})
-    public Response changePassword(@QueryParam("uid") String uid,
-            @QueryParam("pwd") String password,
-            @Context SecurityContext sc) {
+    public Response changePassword(@QueryParam("uid") String uid, @QueryParam("pwd") String password, @Context SecurityContext sc) {
         String authuser = sc.getUserPrincipal() != null ? sc.getUserPrincipal().getName() : null;
         log.log(Level.SEVERE, "attempting change {0}", uid);
+        
         if (authuser == null || uid == null || (password == null || password.length() < 3)) {
             log.log(Level.SEVERE, "Failed to change password on user {0}", uid);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-
+        
         if (authuser.compareToIgnoreCase(uid) != 0 && !sc.isUserInRole(Group.ADMIN)) {
             log.log(Level.SEVERE,
                     "No admin access for {0}. Failed to change password on user {1}",
@@ -242,37 +240,5 @@ public class AuthenticationService {
             em.merge(user);
             return Response.ok().build();
         }
-    }
-    
-    /*
-    Various testmethods
-    */
-    
-    @GET
-    @Path("queryParam")
-    public Response getParams(
-            @QueryParam("s") @DefaultValue("") String myStr,
-            @QueryParam("i") @DefaultValue("-1") int myInt) {
-        String s = "s=" + myStr + ", i=" + myInt;
-        return Response.ok(s).build();
-    }
-    
-    @GET
-    @Path("pathParam/{p}")
-    public Response getParams(@PathParam("p") String v) {
-      return Response.ok(v).build();
-    }
-    
-    @GET
-    @Path("headerParam")
-    public Response getHeaderParam(@HeaderParam("p") String v) {
-        return Response.ok(v).build();
-    }
-    
-    @POST
-    @Path("formParam")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response postFormParam(@FormParam("p") String v) {
-        return Response.ok(v).build();
     }
 }
