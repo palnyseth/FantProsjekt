@@ -5,6 +5,7 @@ no/nyseth/fantprosjekt/auth/MailService$1.class
 no/nyseth/fantprosjekt/auth/User_.class
 no/nyseth/fantprosjekt/resources/SecurityConfiguration.class
 no/nyseth/fantprosjekt/auth/AuthRunOnStartup.class
+no/nyseth/fantprosjekt/auth/ItemImages_.class
 no/nyseth/fantprosjekt/auth/FantShop.class
 no/nyseth/fantprosjekt/JAXRSConfiguration.class
 no/nyseth/fantprosjekt/auth/MailService.class
@@ -13,5 +14,6 @@ no/nyseth/fantprosjekt/auth/Item_.class
 no/nyseth/fantprosjekt/auth/AuthenticationService.class
 no/nyseth/fantprosjekt/auth/KeyService.class
 no/nyseth/fantprosjekt/auth/User.class
+no/nyseth/fantprosjekt/auth/ItemImages.class
 no/nyseth/fantprosjekt/auth/Group_.class
 no/nyseth/fantprosjekt/resources/JavaEE8Resource.class

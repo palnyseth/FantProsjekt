@@ -33,6 +33,8 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import no.nyseth.fantprosjekt.auth.Item;
 import no.nyseth.fantprosjekt.auth.MailService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 /**
  *
@@ -81,7 +83,8 @@ public class FantShop {
     @Path("additem")
     @RolesAllowed({Group.USER})
     @Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
-    public Response addItem(@FormDataParam("itemTitle") String itemTitle, @FormDataParam("itemPrice") BigDecimal itemPrice, @FormDataParam("itemDesc") String itemDesc) {
+    public Response addItem(@FormDataParam("itemTitle") String itemTitle, @FormDataParam("itemPrice") BigDecimal itemPrice, 
+            @FormDataParam("itemDesc") String itemDesc, FormDataMultiPart images) {
         log.log(Level.INFO, "attempting to add item", itemTitle);
         User itemSeller = this.getCurrentUser();
         Item itemtbs = new Item();
@@ -89,6 +92,22 @@ public class FantShop {
         itemtbs.setItemPrice(itemPrice);
         itemtbs.setItemDesc(itemDesc);
         itemtbs.setItemSeller(itemSeller);
+        
+        try {
+            List<FormDataBodyPart> itemImages = images.getFields("itemImage");
+            if (itemImages != null) {
+                for (FormDataBodyPart imageParts : itemImages) {
+                    ItemImages itemImg = new ItemImages();
+                    itemImg.setName(itemDesc);
+                    itemImg.setImageItem(itemtbs);
+                    
+                    em.persist(itemImg);
+                }
+                
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         em.persist(itemtbs);
         log.log(Level.INFO, "adding items", itemTitle);
         return Response
@@ -98,7 +117,7 @@ public class FantShop {
     
     @GET
     @Path("getitems")
-    @RolesAllowed({Group.USER})
+    /*@RolesAllowed({Group.USER})*/
     @Produces(MediaType.APPLICATION_JSON)
     public List<Item> getItem() {
         return em.createNativeQuery("SELECT * FROM ITEM", Item.class).getResultList();
@@ -117,6 +136,8 @@ public class FantShop {
                 itemtbb.setItemBuyer(itembuyer);
                 log.log(Level.INFO, "buyer found, sending purchase info to seller", itemid);
                 MailService mail = new MailService();
+                /*System.out.println(itemtbb.getItemSeller());
+                System.out.println(itemtbb.getItemSeller().getEmail());*/
                 mail.sendMail(itemtbb.getItemSeller().getEmail(), "your stuff be sold", "your item is b sold");
                 return Response
                         .ok().build();
