@@ -1,12 +1,13 @@
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/JAXRSConfiguration.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/JavaEE8Resource.java
-/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/SecurityConfiguration.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/MailService.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/KeyService.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/DatasourceProducer.java
-/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/AuthenticationService.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/dbCheck.java
-/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/AuthRunOnStartup.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/User.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/FantShop.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/Group.java
 /Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/Item.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/resources/SecurityConfiguration.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/AuthenticationService.java
+/Users/nyseth/Documents/MEGA/Skole/Autumn20/Mobile/Obg1/FantProsjekt/src/main/java/no/nyseth/fantprosjekt/auth/AuthRunOnStartup.java
