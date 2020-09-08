@@ -138,7 +138,9 @@ public class FantShop {
                 MailService mail = new MailService();
                 /*System.out.println(itemtbb.getItemSeller());
                 System.out.println(itemtbb.getItemSeller().getEmail());*/
-                mail.sendMail(itemtbb.getItemSeller().getEmail(), "your stuff be sold", "your item is b sold");
+                mail.sendMail(itemtbb.getItemSeller().getEmail(), 
+                        "Item sold: " + itemtbb.getId() + " - "+ itemtbb.getItemTitle(), 
+                        "Your item was bought for: " + itemtbb.getItemPrice() + " by " + itemtbb.getItemBuyer().getEmail());
                 return Response
                         .ok().build();
             }
