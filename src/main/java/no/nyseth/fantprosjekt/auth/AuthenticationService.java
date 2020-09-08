@@ -91,65 +91,66 @@ public class AuthenticationService {
     @Path("create")
     @Produces(MediaType.APPLICATION_JSON)
     public Response createUser(@FormParam("uid") String uid, @FormParam("pwd") String pwd) {
-    User user = em.find(User.class, uid);
-    if (user != null) {
-    log.log(Level.INFO, "user already exists {0}", uid);
-    return Response.status(Response.Status.BAD_REQUEST).build();
-    } else {
-    user = new User();
-    user.setUserid(uid);
-    user.setPassword(hasher.generate(pwd.toCharArray()));
-    Group usergroup = em.find(Group.class, Group.USER);
-    user.getGroups().add(usergroup);
-    return Response.ok(em.merge(user)).build();
+        User user = em.find(User.class, uid);
+        if (user != null) {
+            log.log(Level.INFO, "user already exists {0}", uid);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } else {
+            user = new User();
+            user.setUserid(uid);
+            user.setPassword(hasher.generate(pwd.toCharArray()));
+            Group usergroup = em.find(Group.class, Group.USER);
+            user.getGroups().add(usergroup);
+            return Response.ok(em.merge(user)).build();
+        }
     }
-    }
+
     @GET
     @Path("login")
     public Response login(
-    @QueryParam("uid") @NotBlank String uid,
-    @QueryParam("pwd") @NotBlank String pwd,
-    @Context HttpServletRequest request) {
-    CredentialValidationResult result = identityStoreHandler.validate(
-    new UsernamePasswordCredential(uid, pwd));
-    log.log(Level.INFO, "checking credentials", uid);
-    if (result.getStatus() == CredentialValidationResult.Status.VALID) {
-    String token = issueToken(result.getCallerPrincipal().getName(),
-    result.getCallerGroups(), request);
-    log.log(Level.INFO, "user logged in {0}", uid);
-    return Response
-    .ok(token)
-    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-    .build();
-    } else {
-    log.log(Level.INFO, "user not logged in {0}", uid);
-    return Response.status(Response.Status.UNAUTHORIZED).build();
-    }
+            @QueryParam("uid") @NotBlank String uid,
+            @QueryParam("pwd") @NotBlank String pwd,
+            @Context HttpServletRequest request) {
+        CredentialValidationResult result = identityStoreHandler.validate(
+                new UsernamePasswordCredential(uid, pwd));
+        log.log(Level.INFO, "checking credentials", uid);
+        if (result.getStatus() == CredentialValidationResult.Status.VALID) {
+            String token = issueToken(result.getCallerPrincipal().getName(),
+                    result.getCallerGroups(), request);
+            log.log(Level.INFO, "user logged in {0}", uid);
+            return Response
+                    .ok(token)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .build();
+        } else {
+            log.log(Level.INFO, "user not logged in {0}", uid);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
     }
     
     private String issueToken(String name, Set<String> groups, HttpServletRequest request) {
-    try {
-    Date now = new Date();
-    Date expiration = Date.from(LocalDateTime.now().plusDays(1L).atZone(ZoneId.systemDefault()).toInstant());
-    JwtBuilder jb = Jwts.builder()
-    .setHeaderParam("typ", "JWT")
-    .setHeaderParam("kid", "abc-1234567890")
-    .setSubject(name)
-    .setId("a-123")
-    //.setIssuer(issuer)
-    .claim("iss", issuer)
-    .setIssuedAt(now)
-    .setExpiration(expiration)
-    .claim("upn", name)
-    .claim("groups", groups)
-    .claim("aud", "aud")
-    .claim("auth_time", now)
-    .signWith(keyService.getPrivate());
-    return jb.compact();
-    } catch (InvalidKeyException t) {
-    log.log(Level.SEVERE, "Failed to create token", t);
-    throw new RuntimeException("Failed to create token", t);
-    }
+        try {
+            Date now = new Date();
+            Date expiration = Date.from(LocalDateTime.now().plusDays(1L).atZone(ZoneId.systemDefault()).toInstant());
+            JwtBuilder jb = Jwts.builder()
+                    .setHeaderParam("typ", "JWT")
+                    .setHeaderParam("kid", "abc-1234567890")
+                    .setSubject(name)
+                    .setId("a-123")
+                    //.setIssuer(issuer)
+                    .claim("iss", issuer)
+                    .setIssuedAt(now)
+                    .setExpiration(expiration)
+                    .claim("upn", name)
+                    .claim("groups", groups)
+                    .claim("aud", "aud")
+                    .claim("auth_time", now)
+                    .signWith(keyService.getPrivate());
+            return jb.compact();
+        } catch (InvalidKeyException t) {
+            log.log(Level.SEVERE, "Failed to create token", t);
+            throw new RuntimeException("Failed to create token", t);
+        }
     }
     
     @GET
@@ -238,6 +239,7 @@ public class AuthenticationService {
             User user = em.find(User.class, uid);
             user.setPassword(hasher.generate(password.toCharArray()));
             em.merge(user);
+            log.log(Level.SEVERE, "PASSWORD CHANGED {0}", uid);
             return Response.ok().build();
         }
     }
