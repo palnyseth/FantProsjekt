@@ -16,7 +16,7 @@ import static no.nyseth.fantprosjekt.resources.DatasourceProducer.JNDI_NAME;
 @DataSourceDefinition(
     name = JNDI_NAME,
     className = "org.h2.jdbcx.JdbcDataSource",
-    url = "jdbc:h2:~/auth.db")
+    url = "jdbc:h2:~/auth1.db")
 public class DatasourceProducer {
     public static final String JNDI_NAME =  "java:app/jdbc/default";
 

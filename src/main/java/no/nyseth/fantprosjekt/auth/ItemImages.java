@@ -24,11 +24,15 @@ public class ItemImages implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long imageId;
+    String imageId;
     
     String name;
     
     @ManyToOne
     Item imageItem;
+    String mimeType;
+    long filesize;
+    
+    
     
 }
