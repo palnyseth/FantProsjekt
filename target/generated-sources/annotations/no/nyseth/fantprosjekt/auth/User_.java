@@ -7,7 +7,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 import no.nyseth.fantprosjekt.auth.Group;
 
-@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2020-09-09T21:43:01")
+@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2020-09-10T15:26:37")
 @StaticMetamodel(User.class)
 public class User_ { 
 

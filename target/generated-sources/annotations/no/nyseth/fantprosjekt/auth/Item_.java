@@ -8,7 +8,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 import no.nyseth.fantprosjekt.auth.ItemImages;
 import no.nyseth.fantprosjekt.auth.User;
 
-@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2020-09-09T21:43:01")
+@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2020-09-10T15:26:37")
 @StaticMetamodel(Item.class)
 public class Item_ { 
 

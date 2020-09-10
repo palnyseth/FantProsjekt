@@ -244,4 +244,26 @@ public class AuthenticationService {
             return Response.ok().build();
         }
     }
+    
+    @PUT
+    @Path("updateuser")
+    @RolesAllowed(value = {Group.USER})
+    public Response updateUser(@QueryParam("uid") String uid, @QueryParam("pwd") String password, @QueryParam("eml") String eml, @Context SecurityContext sc) {
+        String authuser = sc.getUserPrincipal() != null ? sc.getUserPrincipal().getName() : null;
+        
+        log.log(Level.SEVERE, "attempting change {0}", uid);
+        if (authuser.compareToIgnoreCase(uid) != 0 && !sc.isUserInRole(Group.ADMIN)) {
+            log.log(Level.SEVERE,
+                    "No admin access for {0}. Failed to update values on user {1}",
+                    new Object[]{authuser, uid});
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } else {
+            User user = em.find(User.class, uid);
+            user.setEmail(eml);
+            em.merge(user);
+            log.log(Level.SEVERE, "VALUES CHANGED {0}", uid);
+            return Response.ok().build();
+        }
+        
+    }
 }
