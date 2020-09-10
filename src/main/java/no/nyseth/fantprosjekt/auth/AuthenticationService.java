@@ -95,6 +95,7 @@ public class AuthenticationService {
         if (user != null) {
             log.log(Level.INFO, "user already exists {0}", uid);
             return Response.status(Response.Status.BAD_REQUEST).build();
+            
         } else {
             user = new User();
             user.setUserid(uid);
